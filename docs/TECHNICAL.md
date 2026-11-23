@@ -1,50 +1,47 @@
 # AFTERSTATE — Technical notes
 
 ## Overview
-AFTERSTATE is a dependency-free Node.js HTTP application with a browser frontend and JSON-file persistence. It is intended as a single-user local prototype.
+A dependency-free Node.js HTTP application with browser frontend and JSON persistence. Intended for a single user on a trusted local device.
 
 ## Components
-- `server.js`: HTTP routing, API logic, persistence, and heuristic risk calculation.
-- `public/`: static HTML, CSS, and JavaScript.
-- `data.json`: default persistent store (not committed; configurable via `AFTERSTATE_DATA`).
-- `tests/server.test.js`: integration tests using Node's built-in test runner.
-- `.github/workflows/ci.yml`: CI test job.
+- `server.js`: HTTP routing, API, persistence, and heuristic risk.
+- `public/`: static frontend.
+- `data.json`: default store; configurable with `AFTERSTATE_DATA`.
+- `tests/server.test.js`: Node integration tests.
+- `.github/workflows/ci.yml`: CI test workflow.
 
-## Run and test
-Requires Node.js 18+.
+## Run
+Node.js 18+.
 ```bash
 npm start
 npm test
 ```
-The server defaults to port 3000; the `PORT` environment variable can override it. Storage location can be overridden with `AFTERSTATE_DATA`.
+Default address is `127.0.0.1:3000`. `PORT` and `HOST` environment variables can override the listening port/address; changing HOST can expose the app to other devices and is discouraged.
 
-## API reference
+## API
 | Method | Route | Purpose |
 |---|---|---|
-| GET | `/api/health` | Basic health response |
+| GET | `/api/health` | Health response |
 | GET | `/api/summary` | Record, active, overdue, blocked, completed counts |
-| GET | `/api/events` | Recent activity events |
-| GET | `/api/export` | JSON export of the store |
-| GET | `/api/items` | List records; supports `q` and `status` query parameters |
-| POST | `/api/items` | Create a record |
-| PATCH | `/api/items/:id` | Update a record |
-| DELETE | `/api/items/:id` | Delete a record |
+| GET | `/api/events` | Recent activity |
+| GET | `/api/export` | JSON store export |
+| GET | `/api/items` | List records; supports `q` and `status` |
+| POST | `/api/items` | Create record |
+| PATCH | `/api/items/:id` | Update record |
+| DELETE | `/api/items/:id` | Delete record |
 
-## Record fields
-Records include an identifier, title, description, owner, due date, priority, status, created timestamp, and updated timestamp. List/create/update responses include a calculated risk value.
+## Fields
+Record fields include id, title, description, owner, due date, priority, status, creation/update timestamps. Priorities: `low`, `medium`, `high`, `critical`. Statuses: `open`, `in_progress`, `blocked`, `done`.
 
-Priorities: `low`, `medium`, `high`, `critical`. Statuses: `open`, `in_progress`, `blocked`, `done`.
-
-## Risk heuristic
-The rule-based score adds indicators for blocked status, high/critical priority, missing owner, and deadline proximity or lateness. It is capped at 100. Completed records return zero. It is a prioritization heuristic, not a validated predictive model.
+## Risk
+Rule-based additive factors include blocked status, high/critical priority, absent owner, and due-date proximity/lateness. Score capped at 100; done records are 0. Not a validated prediction.
 
 ## Persistence
-The store is a JSON object containing `items` and `events`. Writes use a temporary file followed by rename. The application has no built-in backup or recovery mechanism.
+JSON store with `items` and `events`. Writes use temporary-file rename. No automated backups or recovery.
 
-## Security and limitations
-- Single-user prototype only.
+## Security limitations
 - No authentication, authorization, or TLS.
-- Not hardened for public or hostile-network use.
-- Local JSON storage by default.
-- No multi-user concurrency guarantees or sophisticated recovery.
-- Treat exported data and the data file as sensitive if records contain personal information.
+- Intended only for loopback/local use.
+- Not hardened for public or hostile-network exposure.
+- No concurrency guarantees or production recovery.
+- Treat store and export as sensitive if they contain personal details.
