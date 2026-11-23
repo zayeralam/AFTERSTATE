@@ -1,0 +1,1 @@
+Node.js built-in HTTP server; static frontend; JSON API; local file persistence. Routes: /api/health, /api/items, /api/summary, /api/events, /api/export. Intended for localhost only: no authentication, TLS, or production security hardening.
