@@ -1,0 +1,1 @@
+# Technical notes\n\nNode.js 18+ built-in HTTP server, plain frontend, JSON file persistence. APIs include health, CRUD, summary, events, and export. Integration tests use the Node test runner. CI uses GitHub Actions.\n\nSingle-user prototype. No authentication, TLS, or production hardening. Risk score is heuristic.\n
